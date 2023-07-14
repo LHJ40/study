@@ -49,9 +49,27 @@ public class MemberService {
 	}
 
 	// 이메일 인증 여부 확인
-	public boolean isMailAuth() {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean isMailAuth(MemberVO member) {
+		// Mapper - selectMailAuthStatus() 메서드를 호출하여 메일 인증 여부 조회
+		// 조회 결과가 "Y" 이면 true, 아니면 false 리턴
+		if(mapper.selectMailAuthStatus(member).equals("Y")) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	// 이메일과 일치하는 아이디 조회
+	public String getId(String email) {
+		return mapper.selectId(email);
+	}
+
+	// 인증 정보 추가 or 변경
+	public void registAuthInfo(String id, String authCode) {
+		// 기존 인증정보가 존재하는지 여부 확인
+		// MemberMapper - getAuthInfo() 메서드를 호출하여 기존 인증정보 조회
+		// => 파라미터 : 아이디    리턴타입 : AuthInfoVO(authInfo)
+		
 	}
 
 }

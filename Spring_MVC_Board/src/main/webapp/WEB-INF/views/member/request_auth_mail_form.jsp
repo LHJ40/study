@@ -9,7 +9,30 @@
 <script type="text/javascript">
 	function requestAuthMail() {
 		let email = $("#email").val().trim();
-		alert(email);
+// 		alert(email);
+
+		// AJAX 를 활용하여 인증메일 발송 작업 요청
+		// 요청 주소 : RequestAuthMailPro
+		// 요청 파라미터 : email
+		// 응답 데이터 타입 : text
+		$.ajax({
+			type: "GET",
+			url: "RequestAuthMailPro",
+			data: {
+				email: email
+			},
+			dataType: "text",
+			success: function(result) {
+				if(result == "true") {
+					alert("인증 메일 발송 완료!");
+				} else {
+					alert("인증 메일 발송 실패!");
+				}
+			},
+			error: function() {
+				alert("인증 메일 발송 요청 실패!");
+			}
+		});
 	}
 </script>
 </head>

@@ -12,9 +12,13 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-public class SendAuthMail {
+public class SendMailClient {
 	
-	public void sendMail(String receiver) {
+	// 메일 발송을 수행할 sendMail() 메서드 정의
+	// => 파라미터 : 이메일, 제목, 본문   리턴타입 : boolean(isSendSuccess)
+	public boolean sendMail(String email, String subject, String content) {
+		boolean isSendSuccess = false;
+		
 		try {
 			// --------------- 메일 전송에 필요한 정보 설정 작업 ---------------
 			// 메일 전송 프로토콜 : SMTP(Simple Mail Transfer Protocol)
@@ -62,7 +66,7 @@ public class SendAuthMail {
 			//    - InternetAddress 객체 생성
 			//    => 파라미터 : 수신자 주소
 			//    => AddressException 처리 필요
-			Address receiverAddress = new InternetAddress(receiver);
+			Address receiverAddress = new InternetAddress(email);
 			
 			// 3) Message 객체를 통해 전송할 메일에 대한 내용 설정
 			// => MessagingException 처리 필요
@@ -77,11 +81,11 @@ public class SendAuthMail {
 			// => RecipientType.CC : 참조. Carbon Copy 의 약자. 직접적 수신자는 아니나 참조용으로 수신(= 업무 관계자)
 			// => RecipientType.BCC : 숨은참조, Blind CC 약자. 다른 사람들이 누가 참조하는지 알 수 없게 숨김 처리
 			// 3-4) 메일 제목 설정
-			message.setSubject("[아이티윌] 회원 가입을 축하드립니다.");
+			message.setSubject(subject);
 			// 3-5) 메일 본문 설정
 			// => 파라미터 : 본문, 본문의 컨텐츠 타입
 			//    (만약, 파일 전송을 포함하려면 Multipart 타입 파라미터 객체 필요)
-			message.setContent("<h3>메일 인증이 필요합니다.</h3>", "text/html; charset=UTF-8");
+			message.setContent(content, "text/html; charset=UTF-8");
 			// 3-6) 메일 전송 날짜 및 시각 설정
 			// => java.util.Date 객체 활용하여 현재 시스템 시각 정보 활용
 			message.setSentDate(new Date());
@@ -93,10 +97,26 @@ public class SendAuthMail {
 			Transport.send(message);
 			
 			System.out.println("인증 메일 발송 성공!");
+			
+			isSendSuccess = true;
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("인증 메일 발송 실패!");
 		}
+		
+		return isSendSuccess;
 	}
 	
 }
+
+
+
+
+
+
+
+
+
+
+
+

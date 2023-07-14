@@ -34,6 +34,12 @@ public interface MemberMapper {
 	// 회원 정보 삭제(탈퇴)(일반, 관리자모드)
 	int deleteMember(MemberVO member);
 
+	// 이메일 인증 여부 확인을 위한 인증 상태 조회
+	String selectMailAuthStatus(MemberVO member);
+
+	// 이메일과 일치하는 아이디 조회
+	String selectId(String email);
+
 }
 
 

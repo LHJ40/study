@@ -143,7 +143,14 @@
 		    <version>1.1.1</version>
 		</dependency>
 				
-				
+		<!-- 난수 생성 등의 다양한 작업 제공 -->
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-lang3</artifactId>
+		    <version>3.12.0</version>
+		</dependency>
+					
 		
 		<!-- AspectJ -->
 		<dependency>

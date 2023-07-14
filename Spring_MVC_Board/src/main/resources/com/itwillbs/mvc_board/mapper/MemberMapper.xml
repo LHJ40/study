@@ -97,6 +97,24 @@
 				id = #{id} 
 	</delete>
 	
+	<!-- 메일 인증 여부 확인 - SELECT -->
+	<!-- 아이디가 일치하는 레코드의 인증 상태(mail_auth_status) 조회 -->
+	<select id="selectMailAuthStatus" resultType="string">
+		SELECT mail_auth_status
+			FROM member
+			WHERE 
+				id = #{id} 
+	</select>
+	
+	<!-- 이메일과 일치하는 아이디 조회 - SELECT -->
+	<!-- 이메일이 일치하는 레코드의 아이디(id) 조회 -->
+	<select id="selectId" resultType="string">
+		SELECT id
+			FROM member
+			WHERE 
+				email = #{email}
+	</select>
+	
 </mapper>
 
 

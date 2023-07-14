@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.itwillbs.mvc_board.handler.GenerateRandomCode;
 import com.itwillbs.mvc_board.handler.MyPasswordEncoder;
-import com.itwillbs.mvc_board.handler.SendAuthMail;
+import com.itwillbs.mvc_board.handler.SendMailClient;
 import com.itwillbs.mvc_board.service.MemberService;
+import com.itwillbs.mvc_board.service.SendMailService;
 import com.itwillbs.mvc_board.vo.MemberVO;
 
 @Controller
@@ -60,8 +62,8 @@ public class MemberController {
 		if(insertCount > 0) {
 			// ------------------------------------------------------------------------------
 			// 회원 가입 성공 시 인증 메일 발송 기능 추가
-			// SendAuthMail - sendMail() 메서드를 호출하여 인증 메일 발송
-			// => 파라미터 : 수신자 메일 주소(= 회원 가입 시 입력한 이메일)
+			// SendMailService - sendAuthMail() 메서드를 호출하여 인증 메일 발송 요청
+			// => 파라미터 : 아이디, 수신자 메일 주소(= 회원 가입 시 입력한 이메일)
 			// => 단, 메일 발송 딜레이로 인해 회원 가입 성공 페이지 이동 작업이 늦어지므로
 			//    페이지 포워딩과 메일 발송을 별개로 처리를 위해 Thread 활용
 			// Thread 객체를 활용하여 메일 발송 메서드 호출을 멀티쓰레딩으로 처리하고
@@ -70,8 +72,8 @@ public class MemberController {
 				
 				@Override
 				public void run() {
-					SendAuthMail authMail = new SendAuthMail();
-					authMail.sendMail(member.getEmail1() + "@" + member.getEmail2());
+					SendMailService mailService = new SendMailService();
+					mailService.sendAuthMail(member.getId(), member.getEmail1() + "@" + member.getEmail2());
 				}
 			}).start(); // start() 메서드 호출 필수!
 			// ------------------------------------------------------------------------------
@@ -222,12 +224,16 @@ public class MemberController {
 			model.addAttribute("msg", "로그인 실패!");
 			return "fail_back";
 		} else { // 로그인 성공(= 패스워드 일치)
+			// ------------------------- 메일 인증 확인 기능 추가 ---------------------------
 			// 이메일 인증 여부 확인하여 미인증 시 인증 요청 알림 표시
 			// 아니면, 로그인 후 처리 작업 수행
 			// MemberService - isMailAuth()
-			if(!service.isMailAuth()) { // 메일 미인증 회원
-				// "member/request_mail_auth.jsp" 페이지 포워딩
-				return "member/request_mail_auth";
+			// => 파라미터 : MemberVO 객체(아이디 필요)
+			if(!service.isMailAuth(member)) { // 메일 미인증 회원
+				// "fail_back.jsp" 페이지 포워딩("이메일 인증 후 로그인이 가능합니다." 출력)
+				model.addAttribute("msg", "이메일 인증 후 로그인이 가능합니다.");
+				return "fail_back";
+			// -------------------------------------------------------------------------------
 			} else { // 메일 인증 회원
 				// 세션 객체에 아이디 저장(속성명 sId)
 				session.setAttribute("sId", member.getId());
@@ -416,6 +422,38 @@ public class MemberController {
 	@GetMapping("RequestAuthMailForm")
 	public String requestAuthMailForm() {
 		return "member/request_auth_mail_form";
+	}
+	
+	@ResponseBody
+	@GetMapping("RequestAuthMailPro")
+	public String requestAuthMail(String email) {
+//		System.out.println(email);
+		
+		// Service - getId() 메서드를 호출하여
+		// member 테이블에서 email 에 해당하는 id 값 조회
+		// => 파라미터 : 이메일(email)    리턴타입 : String(id)
+		String id = service.getId(email);
+//		System.out.println(id);
+		
+		// SendAuthMail 인스턴스 생성 후 sendMail() 메서드 호출하여 메일 발송 요청
+		// => 파라미터 : 아이디, 이메일   리턴타입 : boolean(isSendSuccess)
+		SendMailService mailService = new SendMailService();
+		String authCode = mailService.sendAuthMail(id, email);
+		System.out.println("메일 발송 결과 인증코드 : " + authCode);
+		
+		// MemberService - registAuthInfo() 메서드를 호출하여 
+		// 인증 메일에 포함된 아이디와 인증코드를 인증정보 테이블에 추가
+		// => 파라미터 : 아아디, 인증코드   리턴타입 : void
+		// => 단, 메일 발송 후 리턴받은 인증코드가 있을 경우에만 작업 수행
+		if(!authCode.equals("")) {
+			// 인증 코드 DB 작업 요청
+			service.registAuthInfo(id, authCode);
+			
+			// AJAX 요청에 대한 응답으로 "true" 값 리턴
+			return "true";
+		}
+		
+		return "false";
 	}
 	
 }

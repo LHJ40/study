@@ -115,6 +115,52 @@
 				email = #{email}
 	</select>
 	
+	<!-- 기존 인증정보 조회 - SELECT -->
+	<select id="selectAuthInfo" resultType="com.itwillbs.mvc_board.vo.AuthInfoVO">
+		SELECT *
+			FROM auth_info
+			WHERE 
+				id = #{id} 
+	</select>
+	
+	<!-- 새 인증정보 추가 - INSERT -->
+	<insert id="insertAuthInfo">
+		INSERT
+			INTO auth_info
+			VALUES (
+				#{id},
+				#{authCode}
+			) 
+	</insert>
+	
+	<!-- 기존 인증정보 갱신 - UPDATE -->
+	<update id="updateAuthInfo">
+		UPDATE auth_info
+			SET
+				auth_code = #{authCode}
+			WHERE 
+				id = #{id} 
+	</update>
+	
+	<!-- 인증상태 갱신 - UPDATE -->
+	<!-- member 테이블의 mail_auth_status 컬럼값을 "Y" 로 변경 -->
+	<update id="updateMailAuthStatus">
+		UPDATE member
+			SET
+				mail_auth_status = 'Y'
+			WHERE 
+				id = #{id} 
+	</update>
+	
+	<!-- 인증정보 삭제 - DELETE -->
+	<!-- auth_info 테이블에서 아이디가 일치하는 레코드 삭제 -->
+	<delete id="deleteAuthInfo">
+		DELETE 
+			FROM auth_info
+			WHERE 
+				id = #{id} 
+	</delete>
+	
 </mapper>
 
 

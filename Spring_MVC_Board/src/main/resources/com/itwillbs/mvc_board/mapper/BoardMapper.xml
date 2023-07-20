@@ -226,6 +226,98 @@
 			WHERE
 				board_num = #{board_num}
 	</update>
+	
+	<!-- 댓글 작성 - INSERT -->
+	<!-- 
+	댓글번호(reply_num)를 자동증가 컬럼으로 설정하여 댓글 번호를 자동으로 부여하는데
+	대댓글 작성을 위해서는 댓글의 참조글번호(reply_num)는 댓글 번호와 동일하게 부여해야함
+	이 때, AUTO_INCREMENT 로 자동 계산된 값을 가져오려면 INSERT	태그에 옵션 추가 필요
+	=> useGeneratedKeys="true" 속성을 추가하여 생성된 자동 증가값 사용(접근)할 수 있도록 하고
+	   keyProperties="변수명" 속성을 추가하여 생성된 자동 증가값을 저장할 변수(자동 증가 설정된 컬럼명)를 지정
+	   (VO 객체의 변수 사용 가능)
+	   => 이 때, keyProperties 속성에 설정된 변수 그대로 VO 객체 활용 가능(자동으로 값이 저장됨)
+	      (이미 자동증가된 값이므로 INSERT 과정에서 + 1 불필요)
+	=> 다만, 자동 증가된 번호값은 INSERT 작업 수행 후 계산된 값이 VO 객체에 저장되므로
+	   현재 태그 내에서 사용될 수는 없으나, VO 객체에 저장된 값은 Service, Controller 등에서 객체가 공유되므로
+	   Service 객체에서 다시 메서드를 호출하여 참조 댓글번호(reply_re_ref)를 수정(UPDATE)하는 구문을 새로 실행해야함
+	=> 지금 작업은 <selectKey keyProperty="reply_num" resultType="int" order="AFTER"> 수행한 것과 결과적으로 동일
+	-->
+	<insert id="insertTinyReplyBoard" useGeneratedKeys="true" keyProperty="reply_num">
+		INSERT
+			INTO tiny_reply_board
+			VALUES (
+				null                -- reply_num(댓글 번호)
+				, #{board_num}      -- board_num(댓글의 원본 게시물 글 번호)
+				, #{reply_name}     -- board_name
+				, #{reply_content}  -- board_content
+				, 0                 -- board_re_ref(원본 댓글 번호)
+				, 0                 -- board_re_lev(댓글 들여쓰기 레벨)
+				, 0                 -- board_re_seq(댓글 순서번호)
+				, now()             -- board_date
+			)
+	</insert>
+	
+	<!-- 작성된 새 댓글의 댓글 참조번호(reply_re_ref)를 새 댓글 번호와 동일하게 부여 - UPDATE -->
+	<!-- 
+	댓글 INSERT 과정에서 계산된 자동 증가 번호값이 VO 객체의 reply_num 변수에 저장되어 있으므로
+	UPDATE 구문을 통해 자동 증가된 번호값과 일치하는 댓글 번호의 댓글 참조 번호값을 
+	전달받은 댓글 번호값으로 변경
+	-->
+	<update id="updateRe_ref">
+		UPDATE tiny_reply_board
+			SET
+				reply_re_ref = #{reply_num}
+			WHERE
+				reply_num = #{reply_num}
+	</update>
+	
+	<!-- 댓글 목록 조회 - SELECT -->
+	<!-- 작성한 댓글 순으로 정렬(= 오름차순) -->
+	<select id="selectTinyReplyBoardList" resultType="com.itwillbs.mvc_board.vo.TinyReplyBoardVO">
+		SELECT *
+			FROM tiny_reply_board
+			WHERE
+				board_num = #{board_num}
+			ORDER BY
+				reply_re_ref ASC
+				, reply_re_seq ASC
+	</select>
+	
+	<!-- 댓글 작성자 조회 - SELECT -->
+	<!-- 댓글 번호에 해당하는 작성자(reply_name) 조회 -->
+	<select id="selectTinyReplyWriter" resultType="string">
+		SELECT reply_name
+			FROM tiny_reply_board
+			WHERE
+				reply_num = #{reply_num}
+	</select>
+	
+	<!-- 댓글 삭제 - DELETE -->
+	<!-- 댓글 번호에 해당하는 레코드 삭제 -->
+	<delete id="deleteTinyReplyBoard">
+		DELETE
+			FROM tiny_reply_board
+			WHERE
+				reply_num = #{reply_num}
+	</delete>
+	
+	<!-- 대댓글 작성 - INSERT -->
+	<!-- 새 댓글 번호는 자동 부여(null 사용) -->
+	<!-- 댓글 참조번호는 전달받은 번호 사용, 들여쓰기 레벨과 순서번호는 전달받은 번호 + 1 -->
+	<insert id="insertTinyReReplyBoard">
+		INSERT
+			INTO tiny_reply_board
+			VALUES (
+				null                   -- 댓글 번호(자동 증가)
+				, #{board_num}         -- 원본 게시물 번호
+				, #{reply_name}        -- 댓글 작성자
+				, #{reply_content}     -- 댓글 내용
+				, #{reply_re_ref}      -- 부모 댓글 참조번호
+				, #{reply_re_lev} + 1  -- 댓글 들여쓰기 레벨
+				, #{reply_re_seq} + 1  -- 댓글 순서번호 
+				, now()                -- 댓글 작성일자
+			)
+	</insert>
 </mapper>
 
 

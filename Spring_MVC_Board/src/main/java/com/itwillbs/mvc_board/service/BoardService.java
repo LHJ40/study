@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.itwillbs.mvc_board.mapper.BoardMapper;
 import com.itwillbs.mvc_board.vo.BoardVO;
+import com.itwillbs.mvc_board.vo.TinyReplyBoardVO;
 
 @Service
 public class BoardService {
@@ -80,6 +81,35 @@ public class BoardService {
 	public int modifyBoard(BoardVO board) {
 		return mapper.updateBoard(board);
 	}
+
+	// 댓글 작성
+	public int registTinyReplyBoard(TinyReplyBoardVO board) {
+		// 댓글 작성 시 사용된 댓글 번호(자동 증가값)를 자동으로 VO 객체에 저장하므로
+		// 해당 값을 사용하여 댓글 참조번호를 UPDATE 하기
+		mapper.insertTinyReplyBoard(board); // 댓글 작성
+		return mapper.updateRe_ref(board);  // 댓글 참조글 번호 갱신
+	}
+
+	// 댓글 목록 조회
+	public List<TinyReplyBoardVO> getTinyReplyBoardList(int board_num) {
+		return mapper.selectTinyReplyBoardList(board_num);
+	}
+
+	// 댓글 작성자 검색
+	public String getTinyReplyWriter(TinyReplyBoardVO board) {
+		return mapper.selectTinyReplyWriter(board);
+	}
+	
+	// 댓글 삭제
+	public int removeTinyReplyBoard(TinyReplyBoardVO board) {
+		return mapper.deleteTinyReplyBoard(board);
+	}
+
+	// 대댓글 작성
+	public int writeTinyReReplyBoard(TinyReplyBoardVO board) {
+		return mapper.insertTinyReReplyBoard(board);
+	}
+
 	
 	
 }

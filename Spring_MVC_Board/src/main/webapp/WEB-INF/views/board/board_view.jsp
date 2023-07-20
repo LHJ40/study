@@ -12,6 +12,10 @@
 <!-- 외부 CSS 파일 연결하기 -->
 <link href="${pageContext.request.contextPath }/resources/css/default.css" rel="stylesheet" type="text/css">
 <style type="text/css">
+	a {
+		text-decoration: none;
+	}
+
 	#articleForm {
 		width: 500px;
 		height: 550px;
@@ -57,15 +61,154 @@
 		width: 500px;
 		text-align: center;
 	}
+	
+	/* ------- 댓글 영역 ------- */
+	#tinyReplyArea {
+		width: 500px;
+		height: 150px;
+		margin: auto;
+		margin-top: 20px;
+	}
+	
+	#tinyReplyArea textarea {
+		width: 400px;
+		height: 50px;
+		vertical-align: middle;
+		resize: none;
+	}
+	
+	#btnTinyReplySubmit {
+		width: 85px;
+		height: 55px;
+		vertical-align: middle;
+	}
+	
+	#tinyReplyContentArea {
+		width: 500px;
+		height: 100px;
+		font-size: 12px;
+	}
+	
+	#tinyReplyContentArea table, tr, td {
+		border: none;
+	}
+	
+	.replyContent {
+		width: 320px;
+		text-align: left;
+	}
+	
+	.replyWriter {
+		width: 90px;
+	}
+	
+	.replyDate {
+		width: 90px;
+	}
+	
+	.replyContent img {
+		width: 10px;
+		height: 10px;
+	}
+	
+	/* 대댓글 */
+	#tinyReReplyTextArea {
+		width: 350px;
+		height: 20px;
+		vertical-align: middle;
+		resize: none;
+	}
+	
 </style>
+<script src="${pageContext.request.contextPath }/resources/js/jquery-3.7.0.js"></script>
 <script>
 	function confirmDelete() {
-		let isDelete = confirm("정말 삭제하시겠습니까?");
+		let isDelete = confirm("게시물을 삭제하시겠습니까?");
 		
 		// isDelete 가 true 일 때 BoardDelete 서블릿 요청
 		if(isDelete) {
 			location.href='BoardDelete?board_num=${board.board_num}&pageNum=${param.pageNum}';
 		}
+	}
+	
+	function confirmReplyDelete(reply_num) {
+		let isDelete = confirm("댓글을 삭제하시겠습니까?");
+		
+		// isDelete 가 true 일 때 AJAX 를 활용하여 BoardTinyReplyDelete 서블릿 요청(댓글번호 전달)
+		if(isDelete) {
+			$.ajax({
+				type: "GET",
+				url: "BoardTinyReplyDelete?reply_num=" + reply_num,
+				dataType: "text",
+				success: function(result) {
+					if(result == "true") {
+						// 댓글 삭제 성공 시 테이블의 해당 댓글이 존재하는 tr 태그 자체를 삭제
+						// => 그러기 위해서는 해당 tr 태그를 다른 댓글의 tr 태그와 구별하기 위한 id 필요
+						// => id 선택자로 "replyTr" 문자열과 댓글번호를 조합하여 지정
+						$("#replyTr" + reply_num).remove();
+					} else {
+						alert("댓글 삭제 실패!");
+					}
+				},
+				fail: function() {
+					alert("댓글 삭제 실패!");
+				}
+			});
+		}
+	}
+	
+	// 대댓글 작성 요청 폼 표시
+	function reReplyWriteForm(reply_num, reply_re_ref, reply_re_lev, reply_re_seq) {
+// 		alert(reply_num + ", " + reply_re_ref + ", " + reply_re_lev + ", " + reply_re_seq);
+
+		// 기존에 존재하는 대댓글 입력폼 제거
+		$("#reReplyTr").remove();
+
+		// "replyTr" 문자열과 전달받은 댓글 번호를 조합하여 id 선택자로 지정한 후
+		// 해당 태그 바깥쪽 뒷부분에 댓글 작성 폼 추가(after() 메서드 활용)
+		// => 전달 데이터 : 원본 글번호, 댓글 참조번호, 들여쓰기레벨, 순서번호, 작성자, 본문
+		// => 댓글 관련 정보는 현재 스크립트 로딩 시점에 존재하지 않는 데이터이므로
+		//    함수 호출 시 파라미터로 전달하며, 원본 글번호는 이미 자바 객체로 전달받았으므로 직접 접근 가능
+		$("#replyTr" + reply_num).after(
+				'<tr id="reReplyTr">'
+				+ '		<td colspan="3">'
+				+ '			<form action="BoardTinyReReplyWrite" method="post" id="reReplyForm">'
+				+ '				<input type="hidden" name="board_num" value="' + ${board.board_num} + '">'
+				+ '				<input type="hidden" name="reply_re_ref" value="' + reply_re_ref + '">'
+				+ '				<input type="hidden" name="reply_re_lev" value="' + reply_re_lev + '">'
+				+ '				<input type="hidden" name="reply_re_seq" value="' + reply_re_seq + '">'
+				+ '				<input type="hidden" name="reply_name" value="${sessionScope.sId }">'
+				+ '				<textarea id="tinyReReplyTextArea" name="reply_content"></textarea>'
+				+ '				<input type="button" value="댓글쓰기" id="btnTinyReReplySubmit" onclick="reReplyWrite()">'
+				+ '			</form>'
+				+ '		</td>'
+				+ '</tr>'
+		);
+	}
+	
+	// 대댓글 작성 요청
+	function reReplyWrite() {
+// 		alert($("#reReplyForm").serialize());
+		$.ajax({
+			type: "POST",
+			url: "BoardTinyReReplyWrite",
+			data: $("#reReplyForm").serialize(),
+			dataType: "text",
+			success: function(result) {
+// 				console.log(result);
+				if(result == "true") {
+// 					console.log("화면 갱신");
+					location.reload(); // 화면 갱신(전달받은 POST 데이터도 유지됨, 브라우저에 이력 남지 않음)
+// 					location.replace(location.href); // 화면 갱신(전달받은 POST 데이터 유지 X, 브라우저에 이력 남지 않음)
+// 					location.href = location.href; // 화면 갱신(현재 페이지로 다시 새로 이동, 브라우저에 이력 남음)
+				} else {
+					alert("댓글 작성 실패!");
+				}
+			},
+			fail: function() {
+				alert("댓글 작성 실패!");
+			}		
+		});
 	}
 </script> 
 </head>
@@ -144,6 +287,66 @@
 			<input type="button" value="삭제" onclick="confirmDelete()">
 		</c:if>
 		<input type="button" value="목록" onclick="location.href='BoardList?pageNum=${param.pageNum}'">
+	</section>
+	<section id="tinyReplyArea">
+		<form action="BoardTinyReplyWrite" method="post">
+			<%-- hidden 속성으로 원본 글번호와 작성자 아이디(세션 아이디)를 함께 포함 --%>
+			<input type="hidden" name="board_num" value="${board.board_num}">
+			<input type="hidden" name="reply_name" value="${sessionScope.sId }">
+			<%-- 세션 아이디가 없을 경우(= 미로그인) 댓글 작성 차단 --%>
+			<c:choose>
+				<c:when test="${empty sessionScope.sId }">
+					<textarea id="tinyReplyTextArea" name="reply_content" placeholder="로그인 한 사용자만 댓글 작성 가능" disabled></textarea>
+					<input type="submit" value="댓글쓰기" id="btnTinyReplySubmit" disabled>
+				</c:when>
+				<c:otherwise>
+					<textarea id="tinyReplyTextArea" name="reply_content"></textarea>
+					<input type="submit" value="댓글쓰기" id="btnTinyReplySubmit">
+				</c:otherwise>
+			</c:choose>
+		</form>
+		<%-- 댓글 목록 표시 영역 --%>
+		<div id="tinyReplyContentArea">
+			<table>
+				<%-- 반복문을 통해 tinyReplyBoardList 객체로부터 댓글 목록(내용, 작성자, 작성일) 출력 --%>
+				<c:forEach var="tinyReplyBoard" items="${tinyReplyBoardList }">
+					<%-- 댓글 1개 행 작성 시 삭제 등에 활용하기 위한 id 값 지정(댓글 번호를 조합하여 고유번호로 활용) --%>
+					<tr id="replyTr${tinyReplyBoard.reply_num }">
+						<td class="replyContent">
+							<%-- reply_re_lev 값이 0보다 크면 대댓글이므로 들여쓰기 후 이미지(re.gif) 표시 --%>
+							<c:if test="${tinyReplyBoard.reply_re_lev > 0 }">
+								<%-- 반복문을 통해 공백 추가 --%>
+								<c:forEach var="i" begin="1" end="${tinyReplyBoard.reply_re_lev }">
+									&nbsp;&nbsp;
+								</c:forEach>
+							</c:if>
+							${tinyReplyBoard.reply_content }
+							<%-- 세션 아이디가 존재할 경우 대댓글 작성 이미지(reply-icon.png) 추가 --%>
+							<c:if test="${not empty sessionScope.sId }">
+								<%-- 대댓글 작성 아이콘 클릭 시 자바스크립트 reReplyWriteForm() 함수 호출 --%>
+								<%-- 파라미터 : 댓글 번호, 댓글 참조글번호, 댓글 들여쓰기 레벨, 댓글 순서번호 --%>
+								<a href="javascript:reReplyWriteForm(${tinyReplyBoard.reply_num }, ${tinyReplyBoard.reply_re_ref }, ${tinyReplyBoard.reply_re_lev }, ${tinyReplyBoard.reply_re_seq })">
+									<img src="${pageContext.request.contextPath }/resources/images/reply-icon.png">
+								</a>
+								<%-- 또한, 관리자 또는 세션 아이디와 댓글 아이디가 같으면 댓글 삭제 이미지(delete-icon.png) 추가 --%>
+								<c:if test="${sessionScope.sId eq 'admin' or sessionScope.sId eq tinyReplyBoard.reply_name}">
+									<%-- 삭제 버튼 클릭 시 자바스크립트를 통해 삭제 작업 확인(댓글번호 전달) --%>
+									<a href="javascript:confirmReplyDelete(${tinyReplyBoard.reply_num })">
+										<img src="${pageContext.request.contextPath }/resources/images/delete-icon.png">
+									</a>
+								</c:if>
+							</c:if>
+						</td>
+						<td class="replyWriter">
+							${tinyReplyBoard.reply_name }	
+						</td>
+						<td class="replyDate">
+							<fmt:formatDate value="${tinyReplyBoard.reply_date }" pattern="yy-MM-dd HH:mm" />	
+						</td>
+					</tr>
+				</c:forEach>
+			</table>
+		</div>
 	</section>
 </body>
 </html>

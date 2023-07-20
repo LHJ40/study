@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import com.itwillbs.mvc_board.vo.AuthInfoVO;
 import com.itwillbs.mvc_board.vo.MemberVO;
 
 @Mapper
@@ -39,6 +40,21 @@ public interface MemberMapper {
 
 	// 이메일과 일치하는 아이디 조회
 	String selectId(String email);
+
+	// 기존 인증정보 조회
+	AuthInfoVO selectAuthInfo(String id);
+
+	// 새 인증정보 추가
+	void insertAuthInfo(@Param("id") String id, @Param("authCode") String authCode);
+	
+	// 기존 인증정보 갱신
+	void updateAuthInfo(@Param("id") String id, @Param("authCode") String authCode);
+
+	// 인증상태 갱신
+	void updateMailAuthStatus(String id);
+
+	// 인증정보 삭제
+	void deleteAuthInfo(String id);
 
 }
 

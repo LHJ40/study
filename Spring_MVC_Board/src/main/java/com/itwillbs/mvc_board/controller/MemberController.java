@@ -19,6 +19,7 @@ import com.itwillbs.mvc_board.handler.MyPasswordEncoder;
 import com.itwillbs.mvc_board.handler.SendMailClient;
 import com.itwillbs.mvc_board.service.MemberService;
 import com.itwillbs.mvc_board.service.SendMailService;
+import com.itwillbs.mvc_board.vo.AuthInfoVO;
 import com.itwillbs.mvc_board.vo.MemberVO;
 
 @Controller
@@ -419,11 +420,14 @@ public class MemberController {
 		
 	}
 	
+	// 인증 메일 발송을 위한 이메일 주소 입력 폼
 	@GetMapping("RequestAuthMailForm")
 	public String requestAuthMailForm() {
 		return "member/request_auth_mail_form";
 	}
 	
+	// 인증 메일 발송 요청
+	// => AJAX 요청에 대한 응답을 위하 @ResponseBody 어노테이션 적용
 	@ResponseBody
 	@GetMapping("RequestAuthMailPro")
 	public String requestAuthMail(String email) {
@@ -454,6 +458,29 @@ public class MemberController {
 		}
 		
 		return "false";
+	}
+	
+	// 인증메일에 포함된 링크 클릭 시 인증 요청
+	// => 아이디와 이메일 파라미터를 저장하기 위한 AuthInfoVO 타입 파라미터 선언
+	@GetMapping("MemberEmailAuth")
+	public String emailAuth(AuthInfoVO authInfo, Model model) {
+		// 인증 요청
+		// Service - emailAuth()
+		// => 파라미터 : 인증정보(AuthInfoVO 객체)   리턴타입 : boolean(isAuthSuccess)
+		boolean isAuthSuccess = service.emailAuth(authInfo);
+		
+		// 인증 수행 결과 판별
+		// 성공 시 인증 완료 메세지와 로그인 폼 URL 을 Model 객체에 저장 후 success_forward.jsp 페이지로 포워딩
+		// 실패 시 인증 실패 메세지를 포함하여 fail_back.jsp 페이지로 포워딩
+		if(isAuthSuccess) {
+			model.addAttribute("msg", "인증 완료! 로그인이 가능합니다!");
+			model.addAttribute("targetURL", "MemberLoginForm");
+			return "success_forward";
+		} else {
+			model.addAttribute("msg", "인증 실패!");
+			return "fail_back";
+		}
+		
 	}
 	
 }

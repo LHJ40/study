@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.itwillbs.mvc_board.vo.BoardVO;
+import com.itwillbs.mvc_board.vo.TinyReplyBoardVO;
 
 @Mapper
 public interface BoardMapper {
@@ -44,6 +45,25 @@ public interface BoardMapper {
 
 	// 글 수정
 	int updateBoard(BoardVO board);
+
+	// 댓글 작성
+	int insertTinyReplyBoard(TinyReplyBoardVO board);
+
+	// 작성된 새 댓글의 참조 댓글 번호 등록(수정)
+	int updateRe_ref(TinyReplyBoardVO board);
+
+	// 댓글 목록 조회
+	List<TinyReplyBoardVO> selectTinyReplyBoardList(int board_num);
+
+	// 댓글 작성자 조회
+	String selectTinyReplyWriter(TinyReplyBoardVO board);
+	
+	// 댓글 삭제
+	int deleteTinyReplyBoard(TinyReplyBoardVO board);
+
+	// 대댓글 작성
+	int insertTinyReReplyBoard(TinyReplyBoardVO board);
+
 
 }
 

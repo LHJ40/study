@@ -11,6 +11,22 @@
 <title>Insert title here</title>
 <!-- 외부 CSS 파일 연결하기 -->
 <link href="${pageContext.request.contextPath }/resources/css/default.css" rel="stylesheet" type="text/css">
+<script src="${pageContext.request.contextPath }/resources/js/jquery-3.7.0.js"></script>
+<script type="text/javascript">
+	$(function() {
+		$("#btnAccountAuth").on("click", function() {
+			// 새 창에서 사용자 인증 페이지 요청
+			let requestUri = "https://testapi.openbanking.or.kr/oauth/2.0/authorize?"
+					+ "response_type=code"
+					+ "&client_id=4066d795-aa6e-4720-9383-931d1f60d1a9"
+					+ "&redirect_uri=http://localhost:8082/fintech/callback"
+					+ "&scope=login inquiry transfer"
+					+ "&state=12345678901234567890123456789012"
+					+ "&auth_type=0";
+			window.open(requestUri, "authWindow", "width=600, height=800");
+		});
+	});
+</script>
 </head>
 <body>
 	<header>
@@ -120,6 +136,12 @@
 					<th>가입동기</th>
 					<td>
 						<textarea rows="5" cols="40" name="motivation">${member.motivation }</textarea>
+					</td>
+				</tr>
+				<tr>
+					<th>계좌정보</th>
+					<td>
+						<input type="button" value="계좌인증" id="btnAccountAuth">
 					</td>
 				</tr>
 				<tr>

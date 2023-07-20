@@ -24,15 +24,17 @@
 			dataType: "text",
 			success: function(result) {
 				if(result == "true") {
-					alert("인증 메일 발송 완료!");
+					console.log("인증 메일 발송 완료!");
 				} else {
-					alert("인증 메일 발송 실패!");
+					console.log("인증 메일 발송 실패!");
 				}
 			},
 			error: function() {
 				alert("인증 메일 발송 요청 실패!");
 			}
 		});
+		
+		alert("인증 메일 발송 완료!");
 	}
 </script>
 </head>

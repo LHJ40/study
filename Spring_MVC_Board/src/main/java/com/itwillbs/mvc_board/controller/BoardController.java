@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.itwillbs.mvc_board.service.BoardService;
 import com.itwillbs.mvc_board.vo.BoardVO;
 import com.itwillbs.mvc_board.vo.PageInfoVO;
+import com.itwillbs.mvc_board.vo.TinyReplyBoardVO;
 
 @Controller
 public class BoardController {
@@ -335,6 +336,16 @@ public class BoardController {
 		// 상세정보 조회 결과 저장
 		model.addAttribute("board", board);
 		
+		// ---------------------------------------------------------------------
+		// 해당 게시물에 포함된 댓글 목록 조회
+		// Service - getTinyReplyBoardList() 메서드 호출하여 댓글 목록 조회
+		// => 파라미터 : 글번호   리턴타입 : List<TinyReplyBoardVO>(tinyReplyBoardList)
+		List<TinyReplyBoardVO> tinyReplyBoardList = service.getTinyReplyBoardList(board.getBoard_num());
+		
+		// Model 객체에 댓글 목록 추가(tinyReplyBoardList)
+		model.addAttribute("tinyReplyBoardList", tinyReplyBoardList);
+		// ---------------------------------------------------------------------
+		
 		return "board/board_view";
 	}
 	
@@ -608,6 +619,85 @@ public class BoardController {
 		}
 		
 	}
+	
+	// ==========================================================================
+	// 게시물 내의 댓글 작성 비즈니스 로직 요청
+	@PostMapping("BoardTinyReplyWrite")
+	public String tinyReplyWrite(TinyReplyBoardVO board, HttpSession session, Model model) {
+		String sId = (String)session.getAttribute("sId");
+		if(sId == null) {
+			model.addAttribute("msg", "잘못된 접근입니다!");
+			return "fail_back";
+		}
+		
+		// Service - registTinyReplyBoard() 메서드를 호출하여 댓글 등록 작업 요청
+		// => 파라미터 : TinyReplyBoardVO 객체    리턴타입 : int(insertCount)
+		int insertCount = service.registTinyReplyBoard(board);
+		// 만약, 자동 증가된 reply_num 값이 필요할 경우 현재 컨트롤러에서도 VO 객체의 reply_num 값 접근 가능
+		System.out.println("자동 증가된 reply_num = " + board.getReply_num());
+		
+		// 댓글 등록 작업 결과 판별
+		// => 성공 시 "BoardDetail" 페이지 리다이렉트(글번호 전달)
+		//    실패 시 "댓글 쓰기 실패!" 메세지와 함께 fail_back.jsp 페이지로 포워딩
+		if(insertCount > 0) {
+			return "redirect:/BoardDetail?board_num=" + board.getBoard_num();
+		} else {
+			model.addAttribute("msg", "댓글 쓰기 실패!");
+			return "fail_back";
+		}
+		
+	}
+	
+	// "BoardTinyReplyDelete" 서블릿 요청에 대한 글 삭제 요청(AJAX 요청 응답 문자열 리턴)
+	@ResponseBody
+	@GetMapping("BoardTinyReplyDelete")
+	public String deleteTinyReply(TinyReplyBoardVO board, HttpSession session) {
+		// 세션 아이디가 존재하지 않으면(미로그인) "잘못된 접근입니다!" 출력 후 이전 페이지 돌아가기 처리
+		// 또한, 관리자가 아니고 세션아이디와 작성자 아이디가 다르면 "잘못된 접근입니다!" 
+		// => 이 때, 작성자 아이디는 댓글 번호를 통해 조회 후 판별(service - getTinyReplyWriter(board))
+		String sId = (String)session.getAttribute("sId");
+		if(sId == null || !sId.equals("admin") && !service.getTinyReplyWriter(board).equals(sId)) {
+			return "false";
+		}
+		
+		// BoardService - removeTinyReplyBoard() 메서드 호출하여 댓글 삭제 요청
+		// => 파라미터 : TinyReplyBoardVO 객체   리턴타입 : int(deleteCount)
+		int deleteCount = service.removeTinyReplyBoard(board);
+		
+		// 삭제 실패 시 "삭제 실패!" 처리 후 이전페이지 이동
+		// 아니면, BoardList 서블릿 요청(파라미터 : 페이지번호)
+		if(deleteCount == 0) {
+			return "false";
+		} else {
+			return "true";
+		}
+	}
+	
+	// "BoardTinyReReplyWrite" 서블릿 요청에 대한 대댓글 작성 요청(AJAX 요청 응답 문자열 리턴)
+	@ResponseBody
+	@PostMapping("BoardTinyReReplyWrite")
+	public String writeTinyReReply(TinyReplyBoardVO board, HttpSession session) {
+		System.out.println(board);
+		
+		// 세션 아이디가 존재하지 않으면(미로그인) "false" 리턴
+		String sId = (String)session.getAttribute("sId");
+		if(sId == null) {
+			return "false";
+		}
+		
+		// BoardService - writeTinyReReplyBoard() 메서드 호출하여 대댓글 작성 요청
+		// => 파라미터 : TinyReplyBoardVO 객체   리턴타입 : int(insertCount)
+		int insertCount = service.writeTinyReReplyBoard(board);
+		
+		// 작성 실패 시 "false" 리턴, 아니면 "true" 리턴
+		if(insertCount == 0) {
+			return "false";
+		} else {
+			return "true";
+		}
+	}
+	
+
 	
 }
 

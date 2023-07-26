@@ -114,7 +114,7 @@
 					pageNum++;
 					loadList(searchType, searchKeyword);
 				} else {
-// 					alert("다음 페이지가 없습니다!");
+// 					alert("다음 페이지가 없습니다");
 				}
 			}
 			

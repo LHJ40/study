@@ -1,0 +1,18 @@
+@charset "UTF-8";
+
+/* top.jsp */
+#member_area {
+	text-align: right;
+	margin-bottom: 20px;	
+}
+
+/* 공통 */
+article h1, h3 {
+	text-align: center;
+	text-decoration: none;
+}
+
+table {
+	margin: auto;
+}
+

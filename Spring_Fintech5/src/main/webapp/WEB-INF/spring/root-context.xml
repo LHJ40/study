@@ -6,15 +6,6 @@
 		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 	
 	<!-- Root Context: defines shared resources visible to all other web components -->
-	<!-- HikariCP 라이브러리 사용을 위한 설정(커넥션풀 설정) -->
-	<!-- 1. HikariCP 를 활용한 DB 접속 정보 설정 위해 HikariConfig 객체 설정(JDBC 기본 설정) -->
-	<!-- com.zaxxer.hikari 패키지의 HikariConfig 클래스 지정 및 속성 설정 -->
-<!-- 	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig"> -->
-<!-- 		<property name="driverClassName" value="com.mysql.cj.jdbc.Driver"></property> -->
-<!-- 		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/spring_mvc_board5"></property> -->
-<!-- 		<property name="username" value="root"></property> -->
-<!-- 		<property name="password" value="1234"></property> -->
-<!-- 	</bean> -->
 	<!-- SQL 로그를 위한 log4jdbc 라이브러리 관련 DBCP 정보 변경(driverClassName, jdbcUrl 속성만 변경) -->
 	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
 		<property name="driverClassName" value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy"></property>
@@ -42,7 +33,7 @@
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dataSource"></property>
 		<property name="configLocation" value="classpath:/mybatis-config.xml"></property>
-		<property name="mapperLocations" value="classpath:/com/itwillbs/mvc_board/mapper/*Mapper.xml"></property>
+		<property name="mapperLocations" value="classpath:/com/itwillbs/fintech/mapper/*Mapper.xml"></property>
 	</bean>
 	
 	<!-- 4. MyBatis 연동에 사용될 객체(클래스)들의 패키지 위치 지정(기본 루트 패키지 지정) -->

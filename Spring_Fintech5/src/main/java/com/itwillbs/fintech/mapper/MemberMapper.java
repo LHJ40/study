@@ -56,6 +56,9 @@ public interface MemberMapper {
 	// 인증정보 삭제
 	void deleteAuthInfo(String id);
 
+	// 은행계좌 인증여부 조회
+	String selectBankAuthStatus(String id);
+
 }
 
 

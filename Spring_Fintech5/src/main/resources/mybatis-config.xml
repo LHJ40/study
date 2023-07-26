@@ -6,5 +6,6 @@
 		<typeAlias type="com.itwillbs.fintech.vo.BoardVO" alias="Board"/>
 		<typeAlias type="com.itwillbs.fintech.vo.AuthInfoVO" alias="AuthInfo"/>
 		<typeAlias type="com.itwillbs.fintech.vo.TinyReplyBoardVO" alias="TinyReplyBoard"/>
+		<typeAlias type="com.itwillbs.fintech.vo.ResponseTokenVO" alias="Token"/>
 	</typeAliases>
 </configuration>

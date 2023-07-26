@@ -11,7 +11,13 @@
 	// => 주의! 자바스크립트에서 속성값 비교 시 true, false 대신 "true", "false" 사용
 	alert("${msg}");
 	
-	if("${isClose}" == "true") {
+	if(${isForward} == "true") {
+		location.href = "";
+	} else {
+		history.back();
+	}
+	
+	if(${isClose} == "true") {
 		window.close();		
 	} else {
 		history.back();
@@ -22,3 +28,12 @@
 	
 </body>
 </html>
+
+
+
+
+
+
+
+
+

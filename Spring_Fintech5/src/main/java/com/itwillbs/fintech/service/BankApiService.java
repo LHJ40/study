@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.itwillbs.fintech.vo.ResponseTokenVO;
+import com.itwillbs.fintech.vo.ResponseUserInfoVO;
 
 @Service
 public class BankApiService {
@@ -18,6 +19,11 @@ public class BankApiService {
 		// BankApiClient - requestToken() 메서드 호출 후 결과값 리턴
 		// => 파라미터 : Map 타입(authResponse)   리턴타입 : ResponseTokenVO
 		return bankApiClient.requestToken(authResponse);
+	}
+
+	// 사용자 정보 조회 요청
+	public ResponseUserInfoVO requestUserInfo(String access_token, String user_seq_no) {
+		return bankApiClient.requestUserInfo(access_token, user_seq_no);
 	}
 
 }

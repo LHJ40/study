@@ -141,7 +141,16 @@
 				<tr>
 					<th>계좌정보</th>
 					<td>
-						<input type="button" value="계좌인증" id="btnAccountAuth">
+						<%-- 계좌인증이 되어있지 않은 경우 계좌인증 버튼을 표시하고 --%>
+						<%-- 계좌인증이 되어있는 경우 계좌관리 버튼을 표시 --%>
+						<c:choose>
+							<c:when test="${member.bank_auth_status eq 'N' }">
+								<input type="button" value="계좌인증" id="btnAccountAuth">
+							</c:when>
+							<c:otherwise>
+								<input type="button" value="계좌관리" onclick="location.href = 'bankUserInfo'">
+							</c:otherwise>
+						</c:choose>
 					</td>
 				</tr>
 				<tr>

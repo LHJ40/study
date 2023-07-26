@@ -128,6 +128,15 @@ public class MemberService {
 		return isAuthSuccess;
 	}
 
+	// 은행계좌 인증여부 조회
+	public boolean isBankAuth(String id) {
+		if(mapper.selectBankAuthStatus(id).equals("Y")) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 }
 
 

@@ -161,6 +161,15 @@
 				id = #{id} 
 	</delete>
 	
+	<!-- 은행계좌 인증여부 조회 - SELECT -->
+	<!-- member 테이블에서 아이디가 일치하는 레코드의 bank_auth_status 컬럼 조회 -->
+	<select id="selectBankAuthStatus" resultType="string">
+		SELECT bank_auth_status
+			FROM member
+			WHERE
+				id = #{id}
+	</select>
+	
 </mapper>
 
 

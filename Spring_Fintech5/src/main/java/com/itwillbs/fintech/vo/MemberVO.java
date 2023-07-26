@@ -19,6 +19,7 @@ member 테이블 정의
 가입동기(motivation) - 문자(500자), NN
 가입일(date) - 날짜(DATE), NN
 이메일인증여부(mail_auth_status) - 문자(1자), NN
+계좌인증여부(bank_auth_status) - 문자(1자), NN
 --------------------------------------
  CREATE TABLE member (
  	idx INT PRIMARY KEY AUTO_INCREMENT,
@@ -31,10 +32,12 @@ member 테이블 정의
  	hobby VARCHAR(50) NOT NULL,
  	motivation VARCHAR(500) NOT NULL,
  	hire_date DATE NOT NULL,
- 	mail_auth_status CHAR(1) NOT NULL
+ 	mail_auth_status CHAR(1) NOT NULL,
+ 	bank_auth_status CHAR(1) NOT NULL
  );
  => 패스워드 암호화 기능 추가를 위해 passwd 컬럼 VARCHAR(100) 으로 변경
     ALTER TABLE MEMBER CHANGE passwd passwd VARCHAR(100) NOT NULL; 
+ => 은행계좌인증 기능 추가를 위해 bank_auth_status 컬럼 추가
 */
 
 @Data
@@ -54,6 +57,8 @@ public class MemberVO {
 	private String motivation;
 	private Date hire_date;
 	private String mail_auth_status; // 이메일 인증 여부(기본값 "N")
+	// -------------------------------------------------------------------
+	private String bank_auth_status; // 은행계좌 인증 여부(기본값 "N")
 }
 
 

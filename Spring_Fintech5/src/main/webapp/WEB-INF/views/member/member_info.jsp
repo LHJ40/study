@@ -148,6 +148,7 @@
 								<input type="button" value="계좌인증" id="btnAccountAuth">
 							</c:when>
 							<c:otherwise>
+								<input type="button" value="계좌인증" id="btnAccountAuth"> <%-- 임시 --%>
 								<input type="button" value="계좌관리" onclick="location.href = 'bankUserInfo'">
 							</c:otherwise>
 						</c:choose>

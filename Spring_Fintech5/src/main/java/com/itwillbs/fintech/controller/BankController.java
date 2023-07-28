@@ -10,12 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.itwillbs.fintech.service.BankApiService;
 import com.itwillbs.fintech.service.BankService;
+import com.itwillbs.fintech.vo.BankAccountDetailVO;
 import com.itwillbs.fintech.vo.ResponseTokenVO;
 import com.itwillbs.fintech.vo.ResponseUserInfoVO;
+import com.itwillbs.fintech.vo.ResponseWithdrawVO;
 
 @Controller
 public class BankController {
@@ -106,6 +109,57 @@ public class BankController {
 		return "bank/bank_user_info";
 	}
 	
+	// 2.3. 조회서비스(사용자) - 2.3.1. 잔액조회 API
+	// => 예금주명, 계좌번호(마스킹), 핀테크이용번호 파라미터 => Map 타입으로 처리
+	@PostMapping("bankAccountDetail")
+	public String requestAccountDetail(@RequestParam Map<String, String> map, HttpSession session, Model model) {
+		// 미로그인 또는 엑세스토큰 없으면 "권한이 없습니다!" 출력 후 이전페이지로 돌아가기
+		if(session.getAttribute("sId") == null || session.getAttribute("access_token") == null) {
+			model.addAttribute("msg", "권한이 없습니다!");
+			return "fail_back";
+		}
+		
+		// 요청에 사용될 엑세스토큰을 Map 객체에 추가
+		map.put("access_token", (String)session.getAttribute("access_token"));
+		logger.info("●●●●● bankAccountDetail : " + map);
+		
+		// BankApiService - requestAccountDetail() 메서드 호출하여 계좌 상세정보 조회 요청
+		// => 파라미터 : Map 객체   리턴타입 : BankAccountDetailVO(accountDetail)
+		BankAccountDetailVO accountDetail = bankApiService.requestAccountDetail(map);
+		logger.info("●●●●● BankAccountDetailVO : " + accountDetail);
+		
+		// Model 객체에 조회 결과 저장 - BankAccountDetailVO 객체, 예금주명, 계좌번호(마스킹)
+		model.addAttribute("accountDetail", accountDetail);
+		model.addAttribute("account_num_masked", map.get("account_num_masked"));
+		model.addAttribute("user_name", map.get("user_name"));
+		
+		return "bank/bank_account_detail";
+	}
+	
+	// 2.5. 이체서비스 - 2.5.1. 출금이체 API 요청을 위한 폼 생성(PDF p74)
+	// 출금이체? 나(사용자) -> 핀테크이용기관(핀테크에서의 출금이체) 또는 나 -> 상대방(일반적인 개념의 이체)
+	// 이 때, 나 -> 상대방의 경우 나 -> 핀테크이용기관 -> 상대방의 과정을 거쳐야하며
+	// 나 -> 핀테크이용기관은 출금이체, 핀테크이용기관 -> 상대방은 입금이체를 수행해서 이체가 완료된다.
+	@PostMapping("bankWithdraw")
+	public String requestWithdraw(@RequestParam Map<String, String> map, HttpSession session, Model model) {
+		// 미로그인 또는 엑세스토큰 없으면 "권한이 없습니다!" 출력 후 이전페이지로 돌아가기
+		if(session.getAttribute("sId") == null || session.getAttribute("access_token") == null) {
+			model.addAttribute("msg", "권한이 없습니다!");
+			return "fail_back";
+		}
+		
+		// Map 객체에 엑세스토큰 추가
+		map.put("access_token", (String)session.getAttribute("access_token"));
+		
+		// BankApiService - requestWithdraw() 메서드를 호출하여 출금이체 요청
+		// => 파라미터 : Map 객체   리턴타입 : ResponseWithdrawVO
+		ResponseWithdrawVO withdrawResult = bankApiService.requestWithdraw(map);
+		
+		// Model 객체에 ResponseWithdrawVO 객체 저장
+		model.addAttribute(withdrawResult);
+		
+		return "bank/bank_withdraw_result";
+	}
 	
 }
 

@@ -17,15 +17,20 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.itwillbs.fintech.handler.GenerateRandomCode;
 import com.itwillbs.fintech.handler.MyPasswordEncoder;
 import com.itwillbs.fintech.handler.SendMailClient;
+import com.itwillbs.fintech.service.BankService;
 import com.itwillbs.fintech.service.MemberService;
 import com.itwillbs.fintech.service.SendMailService;
 import com.itwillbs.fintech.vo.AuthInfoVO;
 import com.itwillbs.fintech.vo.MemberVO;
+import com.itwillbs.fintech.vo.ResponseTokenVO;
 
 @Controller
 public class MemberController {
 	@Autowired
 	private MemberService service;
+
+	@Autowired
+	private BankService bankService;
 
 	// "/MemberJoinForm" 요청에 대해 "member/member_join_form.jsp" 페이지 포워딩
 	// => GET 방식 요청, Dispatch 방식 포워딩
@@ -256,6 +261,36 @@ public class MemberController {
 				
 				response.addCookie(cookie); // 응답 데이터에 쿠키 추가
 				// ---------------------------------------------------------------------
+				// 핀테크 계좌 인증을 완료한 회원일 경우
+				// 엑세스토큰과 사용자번호를 조회하여 세션에 저장
+				// => MemberService - isBankAuth() 메서드를 호출하여 계좌인증 여부 확인
+				// => 파라미터 : 아이디   리턴타입 : boolean(isBankAuth)
+//				boolean isBankAuth = service.isBankAuth(member.getId());
+//				System.out.println("isBankAuth : " + isBankAuth);
+				
+				// 계좌인증 회원일 경우(true) BankService - getToken() 메서드를 호출하여 토큰 정보 조회
+				// => 파라미터 : 아이디   리턴타입 : ResponseTokenVO(token)
+//				if(isBankAuth) {
+//					ResponseTokenVO token = bankService.getToken(member.getId());
+////					System.out.println("token : " + token);
+//					
+//					// 토큰 정보가 존재할 경우 세션에 엑세스토큰과 사용자번호 저장
+//					if(token != null) {
+//						session.setAttribute("access_token", token.getAccess_token());		
+//						session.setAttribute("user_seq_no", token.getUser_seq_no());	
+//					}
+//				}
+				// ----------- JOIN 활용 시 ----------
+				// 검색하고자 하는 아이디의 member 테이블의 bank_auth_status 값이 'Y' 일 때
+				// fintech_token 테이블의 레코드 조회
+				// => 파라미터 : 아이디   리턴타입 : ResponseTokenVO(token)
+				ResponseTokenVO token = bankService.getTokenForBankAuth(member.getId());
+				
+				// 토큰 정보가 존재할 경우 세션에 엑세스토큰과 사용자번호 저장
+				if(token != null) {
+					session.setAttribute("access_token", token.getAccess_token());		
+					session.setAttribute("user_seq_no", token.getUser_seq_no());	
+				}
 				
 				// ---------------------------------------------------------------------
 				return "redirect:/"; // 메인페이지(루트)로 리다이렉트

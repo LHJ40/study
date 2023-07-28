@@ -5,8 +5,10 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.itwillbs.fintech.vo.BankAccountDetailVO;
 import com.itwillbs.fintech.vo.ResponseTokenVO;
 import com.itwillbs.fintech.vo.ResponseUserInfoVO;
+import com.itwillbs.fintech.vo.ResponseWithdrawVO;
 
 @Service
 public class BankApiService {
@@ -24,6 +26,16 @@ public class BankApiService {
 	// 사용자 정보 조회 요청
 	public ResponseUserInfoVO requestUserInfo(String access_token, String user_seq_no) {
 		return bankApiClient.requestUserInfo(access_token, user_seq_no);
+	}
+
+	// 계좌 상세정보 조회 요청
+	public BankAccountDetailVO requestAccountDetail(Map<String, String> map) {
+		return bankApiClient.requestAccountDetail(map);
+	}
+
+	// 출금이체 요청
+	public ResponseWithdrawVO requestWithdraw(Map<String, String> map) {
+		return bankApiClient.requestWithdraw(map);
 	}
 
 }

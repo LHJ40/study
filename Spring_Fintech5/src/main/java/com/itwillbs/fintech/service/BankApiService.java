@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.itwillbs.fintech.vo.BankAccountDetailVO;
+import com.itwillbs.fintech.vo.ResponseDepositVO;
 import com.itwillbs.fintech.vo.ResponseTokenVO;
 import com.itwillbs.fintech.vo.ResponseUserInfoVO;
 import com.itwillbs.fintech.vo.ResponseWithdrawVO;
@@ -36,6 +37,10 @@ public class BankApiService {
 	// 출금이체 요청
 	public ResponseWithdrawVO requestWithdraw(Map<String, String> map) {
 		return bankApiClient.requestWithdraw(map);
+	}
+
+	public ResponseDepositVO requestDeposit(Map<String, String> map) {
+		return bankApiClient.requestDeposit(map);
 	}
 
 }

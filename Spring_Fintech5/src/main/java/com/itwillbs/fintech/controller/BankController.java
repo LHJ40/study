@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.itwillbs.fintech.service.BankApiService;
 import com.itwillbs.fintech.service.BankService;
 import com.itwillbs.fintech.vo.BankAccountDetailVO;
+import com.itwillbs.fintech.vo.ResponseDepositVO;
 import com.itwillbs.fintech.vo.ResponseTokenVO;
 import com.itwillbs.fintech.vo.ResponseUserInfoVO;
 import com.itwillbs.fintech.vo.ResponseWithdrawVO;
@@ -156,9 +157,30 @@ public class BankController {
 		ResponseWithdrawVO withdrawResult = bankApiService.requestWithdraw(map);
 		
 		// Model 객체에 ResponseWithdrawVO 객체 저장
-		model.addAttribute(withdrawResult);
+		model.addAttribute("withdrawResult", withdrawResult);
 		
 		return "bank/bank_withdraw_result";
+	}
+	
+	@PostMapping("bankDeposit")
+	public String requestDeposit(@RequestParam Map<String, String> map, HttpSession session, Model model) {
+		// 미로그인 또는 엑세스토큰 없으면 "권한이 없습니다!" 출력 후 이전페이지로 돌아가기
+		if(session.getAttribute("sId") == null || session.getAttribute("access_token") == null) {
+			model.addAttribute("msg", "권한이 없습니다!");
+			return "fail_back";
+		}
+		
+		// Map 객체에 엑세스토큰 추가
+		map.put("access_token", (String)session.getAttribute("access_token"));
+		
+		// BankApiService - requestDeposit() 메서드를 호출하여 입금이체 요청
+		// => 파라미터 : Map 객체   리턴타입 : ResponseDepositVO
+		ResponseDepositVO depositResult = bankApiService.requestDeposit(map);
+		
+		// Model 객체에 ResponseDepositVO 객체 저장
+		model.addAttribute("depositResult", depositResult);
+		
+		return "bank/bank_deposit_result";
 	}
 	
 }

@@ -38,6 +38,12 @@
 						<input type="hidden" name="fintech_use_num" value="${accountDetail.fintech_use_num }">
 						<input type="submit" value="출금이체">
 					</form>
+					<%-- 2.5.2. 입금이체 API 요청을 위한 폼 생성(PDF p83) --%>
+					<form action="bankDeposit" method="post">
+						<%-- hidden 타입으로 은행명, 핀테크이용번호 전달 --%>
+						<input type="hidden" name="fintech_use_num" value="${accountDetail.fintech_use_num }">
+						<input type="submit" value="입금이체">
+					</form>
 				</td>
 			</tr>	
 		</table>

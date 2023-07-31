@@ -2,19 +2,10 @@ package com.itwillbs.fintech.vo;
 
 import lombok.Data;
 
-// 2.5. 이체서비스 - 2.5.1. 출금이체 API 응답 데이터를 관리하는 클래스 정의
+// 2.5.2. 입금이체 API 응답 데이터의 1개 입금 정보를 관리하는 클래스 정의
 @Data
-public class ResponseWithdrawVO {
-	private String api_tran_id;
-	private String api_tran_dtm;
-	private String rsp_code;
-	private String rsp_message;
-	private String dps_bank_code_std;
-	private String dps_bank_code_sub;
-	private String dps_bank_name;
-	private String dps_account_num_masked;
-	private String dps_print_content;
-	private String dps_account_holder_name;
+public class DepositInfoVO {
+	private String tran_no;
 	private String bank_tran_id;
 	private String bank_tran_date;
 	private String bank_code_tran;
@@ -30,19 +21,5 @@ public class ResponseWithdrawVO {
 	private String print_content;
 	private String account_holder_name;
 	private String tran_amt;
-	private String wd_limit_remain_amt;
+	private String cms_num;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

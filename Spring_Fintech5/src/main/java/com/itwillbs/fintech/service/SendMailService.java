@@ -23,7 +23,7 @@ public class SendMailService {
 		String subject = "[아이티윌] 가입 인증 메일입니다.";
 //		String content = "인증코드 : " + authCode;
 		// 사용자가 링크를 클릭하면 인증 수행을 위한 서블릿 주소를 요청하도록 본문에 하이퍼링크를 포함
-		String content = "<a href='http://localhost:8089/mvc_board/MemberEmailAuth?id=" + id + "&auth_code=" + authCode + "'>"
+		String content = "<a href='http://localhost:8089/fintech/MemberEmailAuth?id=" + id + "&auth_code=" + authCode + "'>"
 							+ "이메일 인증을 위해 이 링크를 클릭해 주세요!"
 							+ "</a>";
 		// =====================================================================

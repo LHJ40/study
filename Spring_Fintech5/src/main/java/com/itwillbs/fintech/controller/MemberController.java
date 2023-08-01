@@ -501,6 +501,7 @@ public class MemberController {
 	// => 아이디와 이메일 파라미터를 저장하기 위한 AuthInfoVO 타입 파라미터 선언
 	@GetMapping("MemberEmailAuth")
 	public String emailAuth(AuthInfoVO authInfo, Model model) {
+		System.out.println("dgdg");
 		// 인증 요청
 		// Service - emailAuth()
 		// => 파라미터 : 인증정보(AuthInfoVO 객체)   리턴타입 : boolean(isAuthSuccess)

@@ -21,6 +21,7 @@
 				, #{motivation}
 				, now()
 				, 'N'
+				, 'N'
 			)
 	</insert>
 	
